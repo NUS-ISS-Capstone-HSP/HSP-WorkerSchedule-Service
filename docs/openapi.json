@@ -1,0 +1,230 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "HSP Worker Schedule Service",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/echo": {
+      "post": {
+        "tags": [
+          "echo"
+        ],
+        "summary": "Create echo record",
+        "description": "Store an echo message and return the created record.",
+        "operationId": "create_echo_api_v1_echo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEchoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created echo record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EchoRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Business validation failed."
+          },
+          "422": {
+            "description": "Request payload validation failed."
+          }
+        }
+      }
+    },
+    "/api/v1/echo/{echo_id}": {
+      "get": {
+        "tags": [
+          "echo"
+        ],
+        "summary": "Get echo record by id",
+        "description": "Query a previously created echo record.",
+        "operationId": "get_echo_api_v1_echo__echo_id__get",
+        "parameters": [
+          {
+            "name": "echo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Echo record id (UUID).",
+              "title": "Echo Id"
+            },
+            "description": "Echo record id (UUID)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Echo record details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EchoRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Business validation failed."
+          },
+          "404": {
+            "description": "Echo record was not found."
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/healthz": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Healthz",
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Healthz Healthz Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateEchoRequest": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Message",
+            "description": "Message content to be stored as an echo record."
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "CreateEchoRequest",
+        "example": {
+          "message": "Hello from HTTP"
+        }
+      },
+      "EchoRecordResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Echo record id (UUID)."
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Stored message."
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Record source. HTTP or GRPC."
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "Creation time in ISO-8601 format."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "message",
+          "source",
+          "created_at"
+        ],
+        "title": "EchoRecordResponse",
+        "example": {
+          "created_at": "2026-03-18T12:34:56+00:00",
+          "id": "6f88f9f2-65fd-4ef7-80de-2c96d8ab7b5b",
+          "message": "Hello from HTTP",
+          "source": "HTTP"
+        }
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

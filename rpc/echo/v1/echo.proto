@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package echo.v1;
+
+message EchoRecord {
+  string id = 1;
+  string message = 2;
+  string source = 3;
+  string created_at = 4;
+}
+
+message CreateEchoRequest {
+  string message = 1;
+}
+
+message CreateEchoResponse {
+  EchoRecord record = 1;
+}
+
+message GetEchoRequest {
+  string id = 1;
+}
+
+message GetEchoResponse {
+  EchoRecord record = 1;
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+}
+
+service EchoService {
+  rpc CreateEcho(CreateEchoRequest) returns (CreateEchoResponse);
+  rpc GetEcho(GetEchoRequest) returns (GetEchoResponse);
+  rpc Health(HealthRequest) returns (HealthResponse);
+}

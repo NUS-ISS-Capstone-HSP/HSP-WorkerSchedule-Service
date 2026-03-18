@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: schedule_db
+          MYSQL_USER: app
+          MYSQL_PASSWORD: app
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uapp -papp --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: |
+          ruff check .
+          mypy hsp_worker_schedule_service
+
+      - name: Unit test
+        run: pytest tests/unit -q
+
+      - name: Coverage
+        run: pytest --cov=hsp_worker_schedule_service --cov-report=term-missing --cov-fail-under=70 -q
+
+      - name: Security scan - bandit
+        continue-on-error: true
+        run: bandit -q -r hsp_worker_schedule_service
+
+      - name: Security scan - pip-audit
+        continue-on-error: true
+        run: pip-audit
+
+      - name: Security scan - trivy
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          format: table
+          exit-code: "1"
+
+      - name: Build docker image
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          REPO_NAME="${REPO_NAME,,}"
+          docker build -t "local/${REPO_NAME}:${GITHUB_SHA}" .
+
+      - name: Login to Aliyun registry
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "${{ secrets.ALIYUN_PASSWORD }}" | docker login "${{ secrets.ALIYUN_REGISTRY }}" \
+            --username "${{ secrets.ALIYUN_USERNAME }}" \
+            --password-stdin
+
+      - name: Push docker image to Aliyun
+        if: github.ref == 'refs/heads/main'
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          REPO_NAME="${REPO_NAME,,}"
+
+          LOCAL_IMAGE="local/${REPO_NAME}:${GITHUB_SHA}"
+          IMAGE_BASE="${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/${REPO_NAME}"
+          IMAGE_SHA="${IMAGE_BASE}:${GITHUB_SHA}"
+          IMAGE_LATEST="${IMAGE_BASE}:latest"
+
+          docker tag "${LOCAL_IMAGE}" "${IMAGE_SHA}"
+          docker tag "${LOCAL_IMAGE}" "${IMAGE_LATEST}"
+
+          docker push "${IMAGE_SHA}"
+          docker push "${IMAGE_LATEST}"
