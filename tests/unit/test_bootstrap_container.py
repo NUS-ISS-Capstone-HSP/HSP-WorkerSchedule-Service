@@ -11,9 +11,9 @@ from hsp_worker_schedule_service.repository.mysql import SQLAlchemyEchoRepositor
 
 @pytest.mark.asyncio
 async def test_build_container_with_mock_repository(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("USE_MOCK_REPOSITORY", "true")
-    monkeypatch.setenv("MYSQL_DSN", "mysql+aiomysql://not-used")
-    monkeypatch.setenv("GRPC_PORT", "0")
+    monkeypatch.setenv("HSP_WORKER_SCHEDULE_SERVICE_USE_MOCK_REPOSITORY", "true")
+    monkeypatch.setenv("HSP_WORKER_SCHEDULE_SERVICE_MYSQL_DSN", "mysql+aiomysql://not-used")
+    monkeypatch.setenv("HSP_WORKER_SCHEDULE_SERVICE_GRPC_PORT", "0")
     get_settings.cache_clear()
 
     container = await build_container()
@@ -31,9 +31,9 @@ async def test_build_container_with_sqlalchemy_repository(
     tmp_path: Path,
 ) -> None:
     db_file = tmp_path / "container.db"
-    monkeypatch.setenv("USE_MOCK_REPOSITORY", "false")
-    monkeypatch.setenv("MYSQL_DSN", f"sqlite+aiosqlite:///{db_file}")
-    monkeypatch.setenv("GRPC_PORT", "0")
+    monkeypatch.setenv("HSP_WORKER_SCHEDULE_SERVICE_USE_MOCK_REPOSITORY", "false")
+    monkeypatch.setenv("HSP_WORKER_SCHEDULE_SERVICE_MYSQL_DSN", f"sqlite+aiosqlite:///{db_file}")
+    monkeypatch.setenv("HSP_WORKER_SCHEDULE_SERVICE_GRPC_PORT", "0")
     get_settings.cache_clear()
 
     container = await build_container()
