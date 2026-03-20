@@ -15,8 +15,8 @@ Python 后端模板，提供同一业务能力的 HTTP + gRPC 双入口，采用
 
 HTTP:
 - `GET /healthz`
-- `POST /api/v1/echo`
-- `GET /api/v1/echo/{id}`
+- `POST /api/schedule/v1/echo`
+- `GET /api/schedule/v1/echo/{id}`
 
 gRPC:
 - `CreateEcho`

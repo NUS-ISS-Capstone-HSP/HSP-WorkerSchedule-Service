@@ -5,7 +5,7 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/api/v1/echo": {
+    "/api/schedule/v1/echo": {
       "post": {
         "tags": [
           "echo"
@@ -43,7 +43,7 @@
         }
       }
     },
-    "/api/v1/echo/{echo_id}": {
+    "/api/schedule/v1/echo/{echo_id}": {
       "get": {
         "tags": [
           "echo"

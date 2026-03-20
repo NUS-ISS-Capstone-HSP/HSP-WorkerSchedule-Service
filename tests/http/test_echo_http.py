@@ -23,7 +23,7 @@ def test_healthz_success() -> None:
 def test_create_echo_success() -> None:
     client = build_client()
 
-    response = client.post("/api/v1/echo", json={"message": "hello http"})
+    response = client.post("/api/schedule/v1/echo", json={"message": "hello http"})
 
     assert response.status_code == 201
     payload = response.json()
@@ -34,7 +34,7 @@ def test_create_echo_success() -> None:
 def test_create_echo_validation_error() -> None:
     client = build_client()
 
-    response = client.post("/api/v1/echo", json={"message": ""})
+    response = client.post("/api/schedule/v1/echo", json={"message": ""})
 
     assert response.status_code == 422
 
@@ -42,6 +42,6 @@ def test_create_echo_validation_error() -> None:
 def test_get_echo_not_found() -> None:
     client = build_client()
 
-    response = client.get("/api/v1/echo/not-exists")
+    response = client.get("/api/schedule/v1/echo/not-exists")
 
     assert response.status_code == 404
