@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-.PHONY: install lint test-unit test coverage proto-gen swagger run docker-build
+.PHONY: install lint test-unit test coverage proto-gen swagger run run-local docker-build
 
 install:
 	$(PYTHON) -m pip install --upgrade pip
@@ -20,12 +20,19 @@ coverage:
 	pytest --cov=hsp_worker_schedule_service --cov-report=term-missing --cov-fail-under=70 -q
 
 proto-gen:
-	$(PYTHON) -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. rpc/echo/v1/echo.proto
+	$(PYTHON) -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. rpc/echo/v1/echo.proto rpc/worker_schedule/v1/worker_schedule.proto
 
 swagger:
 	$(PYTHON) -m scripts.generate_openapi
 
 run:
+	$(PYTHON) -m hsp_worker_schedule_service.main
+
+run-local:
+	@set -a; \
+	[ -f .env ] && . ./.env || true; \
+	[ -f .env.local ] && . ./.env.local || true; \
+	set +a; \
 	$(PYTHON) -m hsp_worker_schedule_service.main
 
 docker-build:

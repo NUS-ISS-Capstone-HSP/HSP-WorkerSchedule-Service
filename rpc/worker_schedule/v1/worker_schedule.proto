@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package worker_schedule.v1;
+
+enum WorkerStatus {
+  WORKER_STATUS_UNSPECIFIED = 0;
+  WORKER_STATUS_AVAILABLE = 1;
+  WORKER_STATUS_ASSIGNED = 2;
+  WORKER_STATUS_IN_SERVICE = 3;
+}
+
+enum OrderEventType {
+  ORDER_EVENT_TYPE_UNSPECIFIED = 0;
+  ORDER_EVENT_TYPE_ASSIGNED = 1;
+  ORDER_EVENT_TYPE_SERVICE_STARTED = 2;
+  ORDER_EVENT_TYPE_COMPLETED = 3;
+  ORDER_EVENT_TYPE_CANCELED = 4;
+}
+
+enum ScheduleTaskStatus {
+  SCHEDULE_TASK_STATUS_UNSPECIFIED = 0;
+  SCHEDULE_TASK_STATUS_ASSIGNED = 1;
+  SCHEDULE_TASK_STATUS_IN_SERVICE = 2;
+  SCHEDULE_TASK_STATUS_COMPLETED = 3;
+  SCHEDULE_TASK_STATUS_CANCELED = 4;
+}
+
+message WorkerRecord {
+  string id = 1;
+  string name = 2;
+  WorkerStatus status = 3;
+  string updated_at = 4;
+}
+
+message RegisterWorkerRequest {
+  string worker_id = 1;
+  string worker_name = 2;
+}
+
+message RegisterWorkerResponse {
+  WorkerRecord worker = 1;
+}
+
+message ListWorkersRequest {}
+
+message ListWorkersResponse {
+  repeated WorkerRecord workers = 1;
+}
+
+message UpdateWorkerStatusRequest {
+  string worker_id = 1;
+  WorkerStatus status = 2;
+}
+
+message UpdateWorkerStatusResponse {
+  WorkerRecord worker = 1;
+}
+
+message SyncOrderEventRequest {
+  string order_id = 1;
+  string worker_id = 2;
+  string worker_name = 3;
+  OrderEventType event_type = 4;
+  string start_time = 5;
+  string end_time = 6;
+  string title = 7;
+}
+
+message SyncOrderEventResponse {
+  WorkerRecord worker = 1;
+}
+
+message ScheduleTaskRecord {
+  string order_id = 1;
+  string worker_id = 2;
+  string worker_name = 3;
+  string title = 4;
+  string start_time = 5;
+  string end_time = 6;
+  ScheduleTaskStatus status = 7;
+  string updated_at = 8;
+  bool has_conflict = 9;
+}
+
+message ListDailyScheduleRequest {
+  string date = 1;
+}
+
+message ListDailyScheduleResponse {
+  repeated ScheduleTaskRecord tasks = 1;
+}
+
+message GetOrderDetailRequest {
+  string order_id = 1;
+}
+
+message GetOrderDetailResponse {
+  ScheduleTaskRecord task = 1;
+}
+
+service WorkerScheduleService {
+  rpc RegisterWorker(RegisterWorkerRequest) returns (RegisterWorkerResponse);
+  rpc ListWorkers(ListWorkersRequest) returns (ListWorkersResponse);
+  rpc UpdateWorkerStatus(UpdateWorkerStatusRequest) returns (UpdateWorkerStatusResponse);
+  rpc SyncOrderEvent(SyncOrderEventRequest) returns (SyncOrderEventResponse);
+  rpc ListDailySchedule(ListDailyScheduleRequest) returns (ListDailyScheduleResponse);
+  rpc GetOrderDetail(GetOrderDetailRequest) returns (GetOrderDetailResponse);
+}

@@ -8,3 +8,11 @@ class ValidationError(DomainError):
 
 class NotFoundError(DomainError):
     """Raised when entity does not exist."""
+
+
+class ConflictError(DomainError):
+    """Raised when operation conflicts with current state."""
+
+
+class UnauthorizedError(DomainError):
+    """Raised when request metadata is missing or invalid."""

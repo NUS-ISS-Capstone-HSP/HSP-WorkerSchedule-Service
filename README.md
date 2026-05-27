@@ -22,6 +22,12 @@ gRPC:
 - `CreateEcho`
 - `GetEcho`
 - `Health`
+- `RegisterWorker`
+- `ListWorkers`
+- `UpdateWorkerStatus`
+- `SyncOrderEvent`
+- `ListDailySchedule`
+- `GetOrderDetail`
 
 ## 本地开发
 
@@ -61,6 +67,13 @@ make proto-gen
 make run
 ```
 
+本地开发推荐（`.env.local` 覆盖 `.env`）：
+
+```bash
+cp .env.local.example .env.local
+make run-local
+```
+
 5. 验证服务
 
 ```bash
@@ -82,6 +95,10 @@ make test-unit
 make coverage
 make swagger
 ```
+
+## WorkerSchedule RPC 文档
+
+详见 [docs/worker_schedule_rpc.md](docs/worker_schedule_rpc.md)。
 
 ## Docker
 
