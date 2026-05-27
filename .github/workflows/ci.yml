@@ -28,7 +28,7 @@ jobs:
           mypy hsp_worker_schedule_service
 
       - name: Unit test
-        run: pytest tests/unit -q
+        run: pytest tests -q
 
   coverage_and_security:
     runs-on: ubuntu-latest
