@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-.PHONY: install lint test-unit test coverage proto-gen swagger run docker-build
+.PHONY: install lint test-unit test coverage security proto-gen swagger run docker-build
 
 install:
 	$(PYTHON) -m pip install --upgrade pip
@@ -18,6 +18,11 @@ test:
 
 coverage:
 	pytest --cov=hsp_worker_schedule_service --cov-report=term-missing --cov-fail-under=70 -q
+
+security:
+	bandit -q -r hsp_worker_schedule_service
+	pip-audit
+	semgrep scan --config p/python --config p/security-audit
 
 proto-gen:
 	$(PYTHON) -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. rpc/echo/v1/echo.proto

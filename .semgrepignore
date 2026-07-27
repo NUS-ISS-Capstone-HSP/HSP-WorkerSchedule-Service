@@ -1,0 +1,4 @@
+.venv/
+log/
+rpc/echo/v1/*_pb2.py
+rpc/echo/v1/*_pb2_grpc.py
