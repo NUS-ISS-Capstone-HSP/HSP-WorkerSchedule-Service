@@ -77,6 +77,32 @@ jobs:
           REPO_NAME="${REPO_NAME,,}"
           docker build -t "local/${REPO_NAME}:${GITHUB_SHA}" .
 
+      - name: Start application for OWASP ZAP
+        env:
+          HSP_WORKER_SCHEDULE_SERVICE_USE_MOCK_REPOSITORY: "true"
+        run: |
+          python -m hsp_worker_schedule_service.main > "${RUNNER_TEMP}/zap-target.log" 2>&1 &
+
+      - name: Wait for OWASP ZAP target
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8080/healthz > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          cat "${RUNNER_TEMP}/zap-target.log"
+          exit 1
+
+      - name: Security scan - OWASP ZAP baseline
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: http://127.0.0.1:8080/docs
+          fail_action: false
+          allow_issue_writing: false
+          artifact_name: zap-baseline-report
+
       - name: Login to Aliyun registry
         if: github.ref == 'refs/heads/main'
         run: |
