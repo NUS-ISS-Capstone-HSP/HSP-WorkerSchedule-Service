@@ -77,6 +77,19 @@ jobs:
           REPO_NAME="${REPO_NAME,,}"
           docker build -t "local/${REPO_NAME}:${GITHUB_SHA}" .
 
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
+
+      - name: Snyk container scan
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          REPO_NAME="${REPO_NAME,,}"
+          snyk container test "local/${REPO_NAME}:${GITHUB_SHA}" \
+            --file=Dockerfile \
+            --severity-threshold=high
+
       - name: Start application for OWASP ZAP
         env:
           HSP_WORKER_SCHEDULE_SERVICE_USE_MOCK_REPOSITORY: "true"
